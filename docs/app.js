@@ -2,6 +2,7 @@ let allGroups = [];
 let currentFilter = 'now'; // 'now', 'day', 'all'
 let selectedDay = null;
 let selectedCourts = new Set(); // Track selected courts
+let availableCourtsForFilter = []; // Track courts that should be shown
 
 // Theme Management
 function initTheme() {
@@ -68,6 +69,38 @@ function isToday(dateStr) {
     return dateStr === getTodayDate();
 }
 
+// Sorting Functions
+function sortByTimeAndCourt(groups) {
+    return groups.sort((a, b) => {
+        // First, sort by start time
+        const [aHour, aMin] = a.StartTime.split(':').map(Number);
+        const [bHour, bMin] = b.StartTime.split(':').map(Number);
+        const aTimeMinutes = aHour * 60 + aMin;
+        const bTimeMinutes = bHour * 60 + bMin;
+        
+        if (aTimeMinutes !== bTimeMinutes) {
+            return aTimeMinutes - bTimeMinutes;
+        }
+        
+        // If times are equal, sort by court
+        // Extract court number (e.g., "Bane 1" -> 1, "Bane 1A" -> 1, etc.)
+        const getCourtNumber = (court) => {
+            const match = court.match(/Bane\s+(\d+)/);
+            return match ? parseInt(match[1]) : 999;
+        };
+        
+        const aCourtNum = getCourtNumber(a.Court);
+        const bCourtNum = getCourtNumber(b.Court);
+        
+        if (aCourtNum !== bCourtNum) {
+            return aCourtNum - bCourtNum;
+        }
+        
+        // If court numbers are same, sort by subcourt (A, B, C)
+        return a.Court.localeCompare(b.Court);
+    });
+}
+
 // Court Filter Management
 function getAvailableCourts(groups) {
     const courts = new Set();
@@ -79,39 +112,55 @@ function getAvailableCourts(groups) {
     return Array.from(courts).sort();
 }
 
-function updateCourtFilter(groups) {
+function updateCourtFilter(groupsBeforeCourtFilter) {
     const courtFilter = document.getElementById('courtFilter');
     const courtButtons = document.getElementById('courtButtons');
     
-    const availableCourts = getAvailableCourts(groups);
+    // Get available courts based on current filter (before court selection)
+    const courts = getAvailableCourts(groupsBeforeCourtFilter);
+    availableCourtsForFilter = courts;
     
-    if (availableCourts.length > 0) {
+    if (courts.length > 0) {
         courtFilter.style.display = 'flex';
         
-        courtButtons.innerHTML = availableCourts.map(court => 
-            `<button class="court-button" data-court="${court}">${court}</button>`
-        ).join('');
+        // Only recreate buttons if the courts have changed
+        const existingButtons = Array.from(courtButtons.querySelectorAll('.court-button'));
+        const existingCourts = existingButtons.map(btn => btn.getAttribute('data-court'));
         
-        // Add click handlers
-        courtButtons.querySelectorAll('.court-button').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const court = btn.getAttribute('data-court');
-                toggleCourtSelection(court, btn);
+        if (JSON.stringify(existingCourts) !== JSON.stringify(courts)) {
+            courtButtons.innerHTML = courts.map(court => {
+                const isActive = selectedCourts.has(court) ? 'active' : '';
+                return `<button class="court-button ${isActive}" data-court="${court}">${court}</button>`;
+            }).join('');
+            
+            // Add click handlers
+            courtButtons.querySelectorAll('.court-button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const court = btn.getAttribute('data-court');
+                    toggleCourtSelection(court);
+                });
             });
-        });
+        }
     } else {
         courtFilter.style.display = 'none';
     }
 }
 
-function toggleCourtSelection(court, button) {
+function toggleCourtSelection(court) {
     if (selectedCourts.has(court)) {
         selectedCourts.delete(court);
-        button.classList.remove('active');
     } else {
         selectedCourts.add(court);
-        button.classList.add('active');
     }
+    
+    // Update button visual state
+    const courtButtons = document.getElementById('courtButtons');
+    courtButtons.querySelectorAll('.court-button').forEach(btn => {
+        const btnCourt = btn.getAttribute('data-court');
+        if (btnCourt === court) {
+            btn.classList.toggle('active');
+        }
+    });
     
     applyFilters();
 }
@@ -198,12 +247,18 @@ function selectDay(day) {
 function applyFilters() {
     let filtered = [...allGroups];
     
+    // Apply main filter (now, day, all)
     if (currentFilter === 'now') {
         filtered = filterNow(filtered);
     } else if (currentFilter === 'day' && selectedDay) {
         filtered = filterByDay(filtered, selectedDay);
+        // Sort by time and court when on "Dag" filter
+        filtered = sortByTimeAndCourt(filtered);
     }
-    // 'all' shows everything, no filtering needed
+    
+    // Update court filter buttons BEFORE applying court selection
+    // This ensures buttons show all courts available for the current main filter
+    updateCourtFilter(filtered);
     
     // Apply court filter if any courts are selected
     if (selectedCourts.size > 0) {
@@ -214,9 +269,6 @@ function applyFilters() {
             );
         });
     }
-    
-    // Update court filter buttons based on filtered results
-    updateCourtFilter(filtered);
     
     renderGroups(filtered);
 }
