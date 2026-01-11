@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sydjysk Sparekasse - Dybbøl Cup 2026</title>
+    <link rel="stylesheet" href="lighttheme.css">
+    <link rel="stylesheet" href="darktheme.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <span id="themeIcon">🌙</span>
+            </button>
+            <a href="https://www.facebook.com/people/DC/61571639704588/" class="header-facebook-link" target="_blank" rel="noopener noreferrer" title="Dybbøl Cup Facebook">
+                <span class="fb-icon">📘</span>
+                <span class="fb-text">Følg os</span>
+            </a>
+            <h1>Sydjysk Sparekasse - Dybbøl Cup 2026</h1>
+            <p>Live Resultater</p>
+        </header>
+
+        <div class="content">
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <button class="tab-button active" data-filter="now">⏱️ Nu</button>
+                <button class="tab-button" data-filter="day">📅 Dag</button>
+                <button class="tab-button" data-filter="all">📋 Alle</button>
+            </div>
+
+            <!-- Day Selector (hidden by default) -->
+            <div class="day-selector" id="daySelector" style="display: none;">
+                <button class="day-button" data-day="9.1.2026">Fredag 9/1</button>
+                <button class="day-button" data-day="10.1.2026">Lørdag 10/1</button>
+                <button class="day-button" data-day="11.1.2026">Søndag 11/1</button>
+            </div>
+
+            <!-- Court Filter (hidden by default) -->
+            <div class="court-filter" id="courtFilter" style="display: none;">
+                <div class="court-filter-label">Baner:</div>
+                <div class="court-buttons" id="courtButtons">
+                    <!-- Court buttons will be dynamically generated -->
+                </div>
+            </div>
+
+            <div class="groups-container" id="groupsContainer">
+                <!-- Groups will be loaded here by JavaScript -->
+            </div>
+
+            <div class="no-results" id="noResults" style="display: none;">
+                Ingen grupper fundet
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-links">
+                <a href="https://www.meinturnierplan.de/mt?DybboelCup26" class="footer-link" target="_blank" rel="noopener noreferrer">
+                    📅 Program
+                </a>
+                <a href="https://www.facebook.com/people/DC/61571639704588/" class="footer-link" target="_blank" rel="noopener noreferrer">
+                    📘 Dybbøl Cup Facebook
+                </a>
+            </div>
+            <div class="footer-time">
+                🕐 Aktuel tid: <span id="currentTime">--:--</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Inline JSON data to avoid CORS issues with file:// protocol -->
+    <script id="presentation-data" type="application/json">
+[
+  {
+    "Group": "U5 Mix",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=26g4v98lg9",
+    "Court": "Bane 1C (Rød)",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "08:30",
+    "EndTime": "09:20"
+  },
+  {
+    "Group": "U6 Mix - Gruppe 1",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=26u3k2vxrv",
+    "Court": "Bane 1B (Gul)",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "08:30",
+    "EndTime": "09:17"
+  },
+  {
+    "Group": "U6 Mix - Gruppe 2",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=27fd2do656",
+    "Court": "Bane 1A (Grøn)",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "08:30",
+    "EndTime": "09:20"
+  },
+  {
+    "Group": "U7 Mix - Gruppe 1",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=283e9vcxu7",
+    "Court": "Bane 1A (Grøn)",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "09:25",
+    "EndTime": "10:15"
+  },
+  {
+    "Group": "U7 Mix - Gruppe 2",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=28hhk1jkp2",
+    "Court": "Bane 1B (Gul)",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "09:55",
+    "EndTime": "10:45"
+  },
+  {
+    "Group": "U7 Mix - Gruppe 3",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=28tsu495au",
+    "Court": "Bane 1C (Rød)",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "09:25",
+    "EndTime": "10:15"
+  },
+  {
+    "Group": "U7 Mix - Gruppe 4",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=19h7m3yq4j",
+    "Court": "Bane 1A (Grøn)",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "10:20",
+    "EndTime": "11:07"
+  },
+  {
+    "Group": "U7 Mix - Gruppe 5",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1beq8ui0rs",
+    "Court": "Bane 1B (Gul)",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "10:50",
+    "EndTime": "11:37"
+  },
+  {
+    "Group": "U7 Mix - Gruppe 6",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1bqdbx28ds",
+    "Court": "Bane 1C (Rød)",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "10:20",
+    "EndTime": "11:07"
+  },
+  {
+    "Group": "U7 Mix - Gruppe 7",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1a2gag5cxl",
+    "Court": "Bane 1A (Grøn)",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "11:10",
+    "EndTime": "11:57"
+  },
+  {
+    "Group": "U8A/B Drenge",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=18m2pdyl7s",
+    "Court": "Bane 3",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "11:50",
+    "EndTime": "13:27"
+  },
+  {
+    "Group": "U8B/C Drenge",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=181rmaw073",
+    "Court": "Bane 2 & Bane 3",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "09:30",
+    "EndTime": "11:44"
+  },
+  {
+    "Group": "U9A/B Drenge",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1qej3hisfm",
+    "Court": "Bane 3",
+    "ScheduleDate": "11.1.2026",
+    "StartTime": "09:00",
+    "EndTime": "10:10"
+  },
+  {
+    "Group": "U9A/B Piger",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1ts1r8zyre",
+    "Court": "Bane 3",
+    "ScheduleDate": "11.1.2026",
+    "StartTime": "10:15",
+    "EndTime": "11:25"
+  },
+  {
+    "Group": "U9B/C Drenge",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1pjm5sshpc",
+    "Court": "Bane 1 & Bane 2",
+    "ScheduleDate": "11.1.2026",
+    "StartTime": "09:00",
+    "EndTime": "10:50"
+  },
+  {
+    "Group": "U10A Drenge",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1vtdnu060l",
+    "Court": "Bane 3",
+    "ScheduleDate": "11.1.2026",
+    "StartTime": "11:30",
+    "EndTime": "13:01"
+  },
+  {
+    "Group": "U10B Drenge",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=24xsfn8kia",
+    "Court": "Bane 3",
+    "ScheduleDate": "11.1.2026",
+    "StartTime": "13:10",
+    "EndTime": "15:27"
+  },
+  {
+    "Group": "U10B/C Piger",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1v5fwxuvrb",
+    "Court": "Bane 1 & Bane 2",
+    "ScheduleDate": "11.1.2026",
+    "StartTime": "12:50",
+    "EndTime": "14:24"
+  },
+  {
+    "Group": "U10C Drenge",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1r7cp1q6f9",
+    "Court": "Bane 1 & Bane 2",
+    "ScheduleDate": "11.1.2026",
+    "StartTime": "10:55",
+    "EndTime": "12:45"
+  },
+  {
+    "Group": "U11A Drenge",
+    "PresentationLink": "https://www.meinturnerplan.de/showit.php?id=1b3137p4vp",
+    "Court": "Bane 3",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "13:35",
+    "EndTime": "15:54"
+  },
+  {
+    "Group": "U11B Drenge",
+    "PresentationLink": "https://www.meinturnerplan.de/showit.php?id=19np9p5le3",
+    "Court": "Bane 1 & Bane 2",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "14:15",
+    "EndTime": "15:49"
+  },
+  {
+    "Group": "U11B Piger",
+    "PresentationLink": "https://www.meinturnerplan.de/showit.php?id=1wioffonux",
+    "Court": "Bane 1",
+    "ScheduleDate": "11.1.2026",
+    "StartTime": "14:30",
+    "EndTime": "15:43"
+  },
+  {
+    "Group": "U11C Drenge",
+    "PresentationLink": "https://www.meinturnerplan.de/showit.php?id=196t0v9zy9",
+    "Court": "Bane 1 & Bane 2",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "12:20",
+    "EndTime": "14:10"
+  },
+  {
+    "Group": "U11C Piger",
+    "PresentationLink": "https://www.meinturnerplan.de/showit.php?id=1y27sk6r1g",
+    "Court": "Bane 2",
+    "ScheduleDate": "11.1.2026",
+    "StartTime": "14:30",
+    "EndTime": "16:07"
+  },
+  {
+    "Group": "U12B Drenge",
+    "PresentationLink": "https://www.meinturnerplan.de/showit.php?id=1bco0c6yqe",
+    "Court": "Bane 3",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "16:00",
+    "EndTime": "17:57"
+  },
+  {
+    "Group": "U12B/C Piger",
+    "PresentationLink": "https://www.meinturnerplan.de/showit.php?id=25wxhnfhz1",
+    "Court": "Bane 3",
+    "ScheduleDate": "11.1.2026",
+    "StartTime": "15:35",
+    "EndTime": "16:45"
+  },
+  {
+    "Group": "U13B Drenge",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1a0on6zxj3",
+    "Court": "Bane 1 & Bane 2",
+    "ScheduleDate": "10.1.2026",
+    "StartTime": "15:55",
+    "EndTime": "17:45"
+  },
+  {
+    "Group": "U13B/C Piger",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=25ed1fj529",
+    "Court": "Bane 2",
+    "ScheduleDate": "11.1.2026",
+    "StartTime": "16:10",
+    "EndTime": "17:23"
+  },
+  {
+    "Group": "U14A/B Piger",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1aqsj7r9bh",
+    "Court": "Bane 2",
+    "ScheduleDate": "11.1.2026",
+    "StartTime": "17:25",
+    "EndTime": "18:40"
+  },
+  {
+    "Group": "U14B Drenge",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1b2gdkein2",
+    "Court": "Bane 3",
+    "ScheduleDate": "9.1.2026",
+    "StartTime": "17:00",
+    "EndTime": "19:17"
+  },
+  {
+    "Group": "U14B/C Piger",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1afkq8qho4",
+    "Court": "Bane 1",
+    "ScheduleDate": "11.1.2026",
+    "StartTime": "15:45",
+    "EndTime": "18:02"
+  },
+  {
+    "Group": "U15B Drenge",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1r3266l7kz",
+    "Court": "Bane 1 & Bane 2",
+    "ScheduleDate": "9.1.2026",
+    "StartTime": "17:00",
+    "EndTime": "19:09"
+  },
+  {
+    "Group": "U16A Drenge",
+    "PresentationLink": "https://www.meinturnerplan.de/showit.php?id=1cg7kb9zk0",
+    "Court": "Bane 3",
+    "ScheduleDate": "9.1.2026",
+    "StartTime": "19:25",
+    "EndTime": "20:35"
+  },
+  {
+    "Group": "U17 Piger",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1czhns8o2o",
+    "Court": "Bane 1",
+    "ScheduleDate": "9.1.2026",
+    "StartTime": "19:15",
+    "EndTime": "20:25"
+  },
+  {
+    "Group": "Senior herre",
+    "PresentationLink": "https://www.meinturnierplan.de/showit.php?id=1bw7i06h7q",
+    "Court": "Bane 2",
+    "ScheduleDate": "9.1.2026",
+    "StartTime": "19:15",
+    "EndTime": "21:32"
+  }
+]
+    </script>
+    
+    <script src="app.js"></script>
+</body>
+</html>
