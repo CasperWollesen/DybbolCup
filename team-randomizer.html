@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Randomizer</title>
+    <style>
+        :root {
+            --bg: #f4efe6;
+            --bg-accent: #e3d8c6;
+            --panel: rgba(255, 251, 245, 0.82);
+            --panel-strong: #fffaf2;
+            --text: #2d241b;
+            --muted: #6f6254;
+            --line: rgba(85, 63, 36, 0.12);
+            --shadow: 0 28px 80px rgba(60, 39, 16, 0.14);
+            --primary: #0f766e;
+            --primary-strong: #115e59;
+            --primary-soft: rgba(15, 118, 110, 0.12);
+            --highlight: #d97706;
+            --highlight-soft: rgba(217, 119, 6, 0.14);
+            --card: rgba(255, 255, 255, 0.72);
+            --card-complete: rgba(15, 118, 110, 0.12);
+            --input: rgba(255, 255, 255, 0.85);
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #121414;
+            --bg-accent: #1d2525;
+            --panel: rgba(21, 26, 26, 0.86);
+            --panel-strong: #192020;
+            --text: #eef2ef;
+            --muted: #98a6a1;
+            --line: rgba(176, 202, 194, 0.14);
+            --shadow: 0 28px 90px rgba(0, 0, 0, 0.42);
+            --primary: #5eead4;
+            --primary-strong: #99f6e4;
+            --primary-soft: rgba(94, 234, 212, 0.12);
+            --highlight: #fbbf24;
+            --highlight-soft: rgba(251, 191, 36, 0.16);
+            --card: rgba(27, 34, 34, 0.82);
+            --card-complete: rgba(94, 234, 212, 0.12);
+            --input: rgba(24, 31, 31, 0.92);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Georgia, "Times New Roman", serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(217, 119, 6, 0.16), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.18), transparent 30%),
+                linear-gradient(160deg, var(--bg) 0%, var(--bg-accent) 100%);
+            padding: 24px;
+            transition: background 0.25s ease, color 0.25s ease;
+        }
+
+        .shell {
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            backdrop-filter: blur(18px);
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .hero {
+            position: relative;
+            padding: 32px;
+            background:
+                linear-gradient(135deg, var(--primary-soft), transparent 55%),
+                linear-gradient(135deg, transparent, var(--highlight-soft));
+            border-bottom: 1px solid var(--line);
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--panel-strong);
+            color: var(--text);
+            padding: 10px 16px;
+            cursor: pointer;
+            font: inherit;
+        }
+
+        .hero-stack {
+            display: grid;
+            gap: 18px;
+            max-width: 480px;
+        }
+
+        h1 {
+            font-size: clamp(2.2rem, 4vw, 3rem);
+            line-height: 0.95;
+        }
+
+        .layout {
+            display: grid;
+            gap: 0;
+        }
+
+        .stage,
+        .controls {
+            padding: 28px;
+        }
+
+        .control-stack {
+            display: grid;
+            gap: 18px;
+        }
+
+        .controls {
+            border-top: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .controls h2 {
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+
+        .field {
+            display: grid;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.92rem;
+            color: var(--muted);
+        }
+
+        input {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--input);
+            color: var(--text);
+            padding: 14px 16px;
+            font: inherit;
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: 2px solid var(--primary-soft);
+            border-color: var(--primary);
+        }
+
+        .draw-button {
+            border: none;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--highlight) 100%);
+            color: #ffffff;
+            padding: 16px 18px;
+            font: inherit;
+            font-size: 1.02rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 16px 35px rgba(15, 118, 110, 0.25);
+            transition: transform 0.18s ease, opacity 0.18s ease;
+        }
+
+        .hero .draw-button {
+            width: min(320px, 100%);
+            padding: 18px 22px;
+            font-size: 1.08rem;
+        }
+
+        .draw-button:hover:enabled {
+            transform: translateY(-1px);
+        }
+
+        .draw-button:disabled {
+            cursor: wait;
+            opacity: 0.72;
+        }
+
+        .reset-button {
+            display: none;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: var(--panel-strong);
+            color: var(--text);
+            padding: 12px 18px;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            width: fit-content;
+        }
+
+        .reset-button.is-visible {
+            display: inline-flex;
+        }
+
+        .reset-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .mini-note,
+        .distribution,
+        .status-note {
+            color: var(--muted);
+            font-size: 0.76rem;
+        }
+
+        .stage {
+            display: grid;
+            gap: 24px;
+        }
+
+        .result-card {
+            display: grid;
+            gap: 12px;
+            padding: 24px;
+            border-radius: 24px;
+            background: var(--panel-strong);
+            border: 1px solid var(--line);
+        }
+
+        .result-label {
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            font-size: 0.68rem;
+        }
+
+        .result-value {
+            font-size: clamp(4.1rem, 10vw, 8rem);
+            line-height: 0.9;
+            color: var(--primary-strong);
+        }
+
+        .result-value.is-rolling {
+            animation: pulse 0.7s ease-in-out infinite;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .meta-card {
+            padding: 18px;
+            border-radius: 20px;
+            background: var(--card);
+            border: 1px solid var(--line);
+        }
+
+        .meta-card span {
+            display: block;
+            color: var(--muted);
+            font-size: 0.84rem;
+            margin-bottom: 6px;
+        }
+
+        .meta-card strong {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .team-card {
+            padding: 18px;
+            border-radius: 20px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            transition: transform 0.18s ease, background 0.18s ease;
+        }
+
+        .team-card.active {
+            transform: translateY(-2px);
+            background: var(--primary-soft);
+        }
+
+        .team-card.complete {
+            background: var(--card-complete);
+        }
+
+        .team-name {
+            font-size: 1.08rem;
+            margin-bottom: 10px;
+        }
+
+        .team-stats {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .team-stats strong {
+            font-size: 2rem;
+            line-height: 1;
+        }
+
+        .team-stats span {
+            color: var(--muted);
+        }
+
+        .progress-track {
+            height: 10px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: rgba(128, 128, 128, 0.16);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--highlight) 0%, var(--primary) 100%);
+            transition: width 0.25s ease;
+        }
+
+        .footer-strip {
+            margin-top: 6px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            color: var(--muted);
+            font-size: 0.88rem;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(0.985); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0.5; transform: scale(0.985); }
+        }
+
+        @media (max-width: 900px) {
+            .meta-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 14px;
+            }
+
+            .hero,
+            .controls,
+            .stage {
+                padding: 20px;
+            }
+
+            .theme-toggle {
+                position: static;
+                margin-bottom: 18px;
+            }
+
+            .theme-toggle {
+                justify-self: start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <main class="panel">
+            <section class="hero">
+                <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">
+                    <span id="themeIcon">Moon</span>
+                </button>
+                <div class="hero-stack">
+                    <h1>Draw next team</h1>
+                    <button class="draw-button" id="drawButton" type="button">Draw next team</button>
+                    <div class="result-card">
+                        <span class="result-label">Last draw</span>
+                        <div class="result-value" id="resultValue">Ready</div>
+                        <p class="status-note" id="statusText">20 attendees prepared across 4 teams.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="layout">
+                <section class="stage">
+                    <div class="team-grid" id="teamGrid"></div>
+
+                    <button class="reset-button" id="resetButton" type="button">Reset</button>
+
+                    <div class="meta-grid">
+                        <article class="meta-card">
+                            <span>Draws completed</span>
+                            <strong id="drawsCompleted">0</strong>
+                        </article>
+                        <article class="meta-card">
+                            <span>Attendees left</span>
+                            <strong id="remainingCount">20</strong>
+                        </article>
+                        <article class="meta-card">
+                            <span>Last delay</span>
+                            <strong id="delayShown">0 ms</strong>
+                        </article>
+                    </div>
+
+                    <div class="footer-strip">
+                        <span id="capacitySummary">Team capacities will appear here.</span>
+                        <span id="completionSummary">Draws will stop automatically when every slot is filled.</span>
+                    </div>
+                </section>
+
+                <aside class="controls">
+                    <h2>Settings</h2>
+                    <div class="control-stack">
+                        <div class="settings-grid">
+                            <div class="field">
+                                <label for="attendanceInput">Attendees</label>
+                                <input id="attendanceInput" type="number" min="1" value="20">
+                            </div>
+
+                            <div class="field">
+                                <label for="teamsInput">Teams</label>
+                                <input id="teamsInput" type="number" min="1" value="4">
+                            </div>
+
+                            <div class="field">
+                                <label for="delayInput">Max delay in milliseconds</label>
+                                <input id="delayInput" type="number" min="0" value="400">
+                            </div>
+                        </div>
+
+                        <p class="distribution" id="distributionText"></p>
+                        <p class="mini-note">Changing a setting rebuilds the full draw order.</p>
+                    </div>
+                </aside>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const attendanceInput = document.getElementById('attendanceInput');
+        const teamsInput = document.getElementById('teamsInput');
+        const delayInput = document.getElementById('delayInput');
+        const drawButton = document.getElementById('drawButton');
+        const resetButton = document.getElementById('resetButton');
+        const resultValue = document.getElementById('resultValue');
+        const statusText = document.getElementById('statusText');
+        const drawsCompleted = document.getElementById('drawsCompleted');
+        const remainingCount = document.getElementById('remainingCount');
+        const delayShown = document.getElementById('delayShown');
+        const distributionText = document.getElementById('distributionText');
+        const teamGrid = document.getElementById('teamGrid');
+        const capacitySummary = document.getElementById('capacitySummary');
+        const completionSummary = document.getElementById('completionSummary');
+
+        let teamState = [];
+        let drawPool = [];
+        let drawIndex = 0;
+        let rollingInterval = null;
+        let isDrawing = false;
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('team-randomizer-theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+            setTheme(theme);
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+            });
+
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
+                if (!localStorage.getItem('team-randomizer-theme')) {
+                    setTheme(event.matches ? 'dark' : 'light');
+                }
+            });
+        }
+
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = 'Sun';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeIcon.textContent = 'Moon';
+            }
+
+            localStorage.setItem('team-randomizer-theme', theme);
+        }
+
+        function clampNumber(value, minValue) {
+            const parsed = Number.parseInt(value, 10);
+            if (Number.isNaN(parsed)) {
+                return minValue;
+            }
+
+            return Math.max(minValue, parsed);
+        }
+
+        function randomDelay(maxDelay) {
+            if (maxDelay <= 0) {
+                return 0;
+            }
+
+            return Math.floor(Math.random() * (maxDelay + 1));
+        }
+
+        function shuffle(items) {
+            const copy = [...items];
+
+            for (let index = copy.length - 1; index > 0; index -= 1) {
+                const swapIndex = Math.floor(Math.random() * (index + 1));
+                const temp = copy[index];
+                copy[index] = copy[swapIndex];
+                copy[swapIndex] = temp;
+            }
+
+            return copy;
+        }
+
+        function buildState() {
+            if (rollingInterval) {
+                clearInterval(rollingInterval);
+                rollingInterval = null;
+            }
+
+            isDrawing = false;
+            drawButton.disabled = false;
+            resetButton.classList.remove('is-visible');
+
+            const attendeeCount = clampNumber(attendanceInput.value, 1);
+            const teamCount = clampNumber(teamsInput.value, 1);
+            const maxDelay = clampNumber(delayInput.value, 0);
+
+            attendanceInput.value = attendeeCount;
+            teamsInput.value = teamCount;
+            delayInput.value = maxDelay;
+
+            const baseSize = Math.floor(attendeeCount / teamCount);
+            const extraSlots = attendeeCount % teamCount;
+            const extraIndexes = shuffle(Array.from({ length: teamCount }, (_, index) => index)).slice(0, extraSlots);
+            const extraSet = new Set(extraIndexes);
+
+            teamState = Array.from({ length: teamCount }, (_, index) => ({
+                id: index + 1,
+                capacity: baseSize + (extraSet.has(index) ? 1 : 0),
+                assigned: 0,
+            }));
+
+            drawPool = shuffle(
+                teamState.flatMap((team) => Array.from({ length: team.capacity }, () => team.id))
+            );
+            drawIndex = 0;
+
+            resultValue.classList.remove('is-rolling');
+            resultValue.textContent = 'Ready';
+            statusText.textContent = `${attendeeCount} attendees prepared across ${teamCount} teams.`;
+            drawsCompleted.textContent = '0';
+            remainingCount.textContent = String(attendeeCount);
+            delayShown.textContent = '0 ms';
+            distributionText.textContent = `Balanced target: ${baseSize}${extraSlots ? ` with ${extraSlots} extra slot${extraSlots > 1 ? 's' : ''} assigned randomly.` : ' per team.'}`;
+            capacitySummary.textContent = teamState.map((team) => `Team ${team.id}: ${team.capacity}`).join(' | ');
+            completionSummary.textContent = 'Draws will stop automatically when every slot is filled.';
+
+            renderTeams();
+        }
+
+        function renderTeams(activeTeamId = null) {
+            teamGrid.innerHTML = teamState.map((team) => {
+                const progress = team.capacity === 0 ? 0 : (team.assigned / team.capacity) * 100;
+                const classes = [
+                    'team-card',
+                    activeTeamId === team.id ? 'active' : '',
+                    team.assigned === team.capacity ? 'complete' : ''
+                ].filter(Boolean).join(' ');
+
+                return `
+                    <article class="${classes}">
+                        <div class="team-name">Team ${team.id}</div>
+                        <div class="team-stats">
+                            <strong>${team.assigned}</strong>
+                            <span>of ${team.capacity}</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-bar" style="width: ${progress}%;"></div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function finishIfComplete() {
+            if (drawIndex < drawPool.length) {
+                return false;
+            }
+
+            resultValue.classList.remove('is-rolling');
+            resultValue.textContent = 'Complete';
+            statusText.textContent = 'All attendees have now been assigned.';
+            completionSummary.textContent = 'Every team is now filled to its planned limit.';
+            drawButton.disabled = true;
+            resetButton.classList.add('is-visible');
+            return true;
+        }
+
+        function startRollAnimation(teamCount) {
+            resultValue.classList.add('is-rolling');
+            resultValue.textContent = '...';
+
+            rollingInterval = window.setInterval(() => {
+                const sample = Math.floor(Math.random() * teamCount) + 1;
+                resultValue.textContent = String(sample);
+            }, 90);
+        }
+
+        function stopRollAnimation() {
+            if (rollingInterval) {
+                clearInterval(rollingInterval);
+                rollingInterval = null;
+            }
+
+            resultValue.classList.remove('is-rolling');
+        }
+
+        function drawNextTeam() {
+            if (isDrawing || finishIfComplete()) {
+                return;
+            }
+
+            const maxDelay = clampNumber(delayInput.value, 0);
+            const delay = randomDelay(maxDelay);
+            const teamCount = teamState.length;
+
+            isDrawing = true;
+            drawButton.disabled = true;
+            statusText.textContent = 'Drawing a random team...';
+            delayShown.textContent = `${delay} ms`;
+
+            startRollAnimation(teamCount);
+
+            window.setTimeout(() => {
+                stopRollAnimation();
+
+                const teamId = drawPool[drawIndex];
+                const selectedTeam = teamState.find((team) => team.id === teamId);
+
+                if (!selectedTeam) {
+                    buildState();
+                    return;
+                }
+
+                selectedTeam.assigned += 1;
+                drawIndex += 1;
+
+                resultValue.textContent = String(teamId);
+                statusText.textContent = `Attendee ${drawIndex} goes to ${teamId}.`;
+                drawsCompleted.textContent = String(drawIndex);
+                remainingCount.textContent = String(drawPool.length - drawIndex);
+                completionSummary.textContent = `${drawPool.length - drawIndex} slot${drawPool.length - drawIndex === 1 ? '' : 's'} left to draw.`;
+                renderTeams(teamId);
+
+                isDrawing = false;
+                if (!finishIfComplete()) {
+                    drawButton.disabled = false;
+                }
+            }, delay);
+        }
+
+        [attendanceInput, teamsInput, delayInput].forEach((input) => {
+            input.addEventListener('input', buildState);
+        });
+
+        drawButton.addEventListener('click', drawNextTeam);
+    resetButton.addEventListener('click', buildState);
+
+        initTheme();
+        buildState();
+    </script>
+</body>
+</html>
